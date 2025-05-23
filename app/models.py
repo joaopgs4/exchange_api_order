@@ -1,10 +1,9 @@
 #models.py
-from typing import List, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (
     Column, Integer, String, DateTime, Date, Time, ForeignKey, CheckConstraint, UniqueConstraint, 
-    SmallInteger, Table, DateTime
+    SmallInteger, Table, DateTime, Float
 )
 
 Base = declarative_base()
