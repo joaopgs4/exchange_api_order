@@ -1,5 +1,6 @@
 # schemas.py
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 #########################################################################
@@ -18,12 +19,30 @@ class AuthToken(BaseModel):
     class Config:
         extra = "allow"
 
-class UserCreateDTO(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
+class ProductInOrder(BaseModel):
+    id : int
+    quantity : int
 
-class UserReadDTO(BaseModel):
-    id: int
-    username: str
-    email: EmailStr
+class OrderCreateDTO(BaseModel):
+    items : List[ProductInOrder]
+
+class OrderShortReadDTO(BaseModel):
+    id : int
+    date : datetime #String of the date-time, as: 2025-10-09T03:21:57
+    total : float
+
+class ProductId(BaseModel):
+    id : int
+
+class ProductFull(BaseModel):
+    id : int
+    product : ProductId
+    quantity : int
+    total : float
+
+
+class OrderReadDTO(BaseModel):
+    id : int
+    date : datetime
+    items : List[ProductFull]
+    total : float

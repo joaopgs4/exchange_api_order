@@ -1,24 +1,21 @@
-# models.py
+#models.py
+from typing import List, Float
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Date, Time, ForeignKey, CheckConstraint, UniqueConstraint, SmallInteger
+    Column, Integer, String, DateTime, Date, Time, ForeignKey, CheckConstraint, UniqueConstraint, 
+    SmallInteger, Table, DateTime
 )
-from sqlalchemy.orm import relationship, declarative_base
+
 Base = declarative_base()
 
-######################################################################
-##### Uses SqlAlchemy bases for static objects; referenced in DB #####
-######################################################################
-
-#Default password table for saving the user password as a hash256
-#(Receives the hashed string)
+# Association Table for Order <-> Product (many-to-many)
 class Password(Base):
     __tablename__ = 'password'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     password256 = Column(String(256), nullable=False)
 
-#Default generic user table
-#Use for reference on developing new tables
 class User(Base):
     __tablename__ = 'user'
 
@@ -31,4 +28,40 @@ class User(Base):
 
     __table_args__ = (
         UniqueConstraint('id_password'),
+    )
+
+    orders = relationship("Order", back_populates="user")
+
+order_product_table = Table(
+    'order_product',
+    Base.metadata,
+    Column('order_id', Integer, ForeignKey('order.id'), primary_key=True),
+    Column('product_id', Integer, ForeignKey('product.id'), primary_key=True),
+    Column('quantity', Float, nullable=False),
+    Column('total_price', Float, nullable=False)
+)
+
+
+class Product(Base):
+    __tablename__ = 'product'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(60), nullable=False, unique=True)
+    price = Column(Float(8), nullable=False)
+    unit = Column(String(12), nullable=False)
+
+
+
+class Order(Base):
+    __tablename__ = 'order'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    date = Column(DateTime, nullable=False)
+
+    user = relationship("User", back_populates="orders")
+    products = relationship(
+        "Product",
+        secondary=order_product_table,
+        backref="orders"
     )
